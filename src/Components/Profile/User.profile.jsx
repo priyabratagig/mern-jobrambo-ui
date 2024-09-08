@@ -24,7 +24,7 @@ export function User() {
             <div className='self-stretch bg-white border border-gray-200 rounded-2xl my-5 p-8'>
                 <div className='flex justify-between'>
                     <div className='flex items-center gap-4'>
-                        {user?.email?.length > 0 ? <Avatar className="h-24 w-24" {...avatarConfig} /> : <div className="h-24 w-24"></div>}
+                        {user?.email?.length > 0 ? <Avatar className="h-24 w-24 min-h-24 min-w-24" {...avatarConfig} /> : <div className="h-24 w-24"></div>}
                         <div>
                             <h1 className='font-medium text-xl'>{user?.fullname}</h1>
                             <p>{user ? user?.isrecruiter ? 'Recruiter' : (profile?.bio || 'Student') : ''}</p>
@@ -44,7 +44,7 @@ export function User() {
                 </div>
                 <div className='my-5'>
                     <h1>Skills</h1>
-                    <div className='flex items-center gap-1'>
+                    <div className='flex items-center gap-1 flex-wrap'>
                         {
                             user?.isrecruiter ?
                                 'Not Applicable' :
