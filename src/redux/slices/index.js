@@ -1,0 +1,5 @@
+export { userReducer, userActions } from './user.slice.redux'
+export { profileReducer, profileActions } from './profile.slice'
+export { companiesReducer, companiesActions } from './companies.sclie'
+export { jobsReducer, jobsActions } from './jobs.slice'
+export { queryReducer, queryActions } from './qurey.slice'

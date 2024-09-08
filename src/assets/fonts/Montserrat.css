@@ -1,0 +1,16 @@
+/* Source Code Pro Variable Font */
+@font-face {
+  font-family: "Montserrat";
+  src: url("./Montserrat/Montserrat-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  /* Add more font-variation-settings if needed */
+}
+
+/* Source Code Pro Variable Font Italic */
+@font-face {
+  font-family: "Montserrat";
+  src: url("./Montserrat/Montserrat-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-style: italic;
+  /* Add more font-variation-settings if needed */
+}
