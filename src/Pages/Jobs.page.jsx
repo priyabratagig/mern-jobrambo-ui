@@ -3,9 +3,8 @@ import { Filter, JobCard } from '../Components'
 import { useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
 import { resetAllJobs, setAllCompanies, setAllJobs, resetAllCompanies } from '../redux'
-import { useDidUpdateEffect, usePublicAndStudentsOnly, useToastDismiss } from '../Hooks'
+import { useDidUpdateEffect, useLoadingToast, usePublicAndStudentsOnly, useToastDismiss } from '../Hooks'
 import { get_all_jobs, fetch_companies_by_ids } from '../api'
-import { Toast } from '../toast'
 
 export function Jobs() {
     const allJobs = useSelector(state => state.jobs.allJobs)
@@ -16,10 +15,10 @@ export function Jobs() {
 
     const loadMore = useRef(true)
     const currentstate = useRef({ allJobs, allCompanies })
-    const currentToast = useRef(null)
+    const { toastInit, setToastMesage, toastSuccess, toastError } = useLoadingToast()
 
     usePublicAndStudentsOnly()
-    useToastDismiss(currentToast)
+    useToastDismiss()
 
     useEffect(() => {
         resetAllJobs()
@@ -41,7 +40,7 @@ export function Jobs() {
 
     const getJobs = useCallback(async () => {
         if (!loadMore.current) return false
-        currentToast.current = new Toast('... Loding jobs')
+        toastInit('... Loding jobs')
 
         try {
             const { allJobs, allCompanies } = currentstate.current
@@ -57,17 +56,17 @@ export function Jobs() {
                 if (numberOfJobs < limit.current) {
                     loadMore.current = false
 
-                    currentToast.current.message('You have reached to the end')
+                    setToastMesage('You have reached to the end')
                 }
                 else {
-                    currentToast.current.message('Scroll to load')
+                    setToastMesage('Scroll to load')
                 }
             }
             else {
                 if (previousNumberofJobs + numberOfJobs < 1) {
-                    currentToast.current.succes('No jobs found')
+                    toastSuccess('No jobs found')
                 }
-                else currentToast.current.succes('You have reached to the end')
+                else toastSuccess('You have reached to the end')
 
                 loadMore.current = false
                 return undefined
@@ -84,14 +83,14 @@ export function Jobs() {
             setAllCompanies({ ...allCompanies, ...companies })
             skip.current = skip.current + limit.current
 
-            currentToast.current.succes()
+            toastSuccess()
         }
         catch ({ message }) {
-            currentToast.current.error(message)
+            toastError(message)
 
             console.error(message)
         }
-    }, [filters])
+    }, [filters, toastInit, setToastMesage, toastSuccess, toastError])
 
     useEffect(() => {
         const timeOut = setTimeout(getJobs, 150)

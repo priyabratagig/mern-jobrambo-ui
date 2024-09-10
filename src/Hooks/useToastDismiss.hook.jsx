@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-export function useToastDismiss(promise) {
+export function useToastDismiss() {
 
     useEffect(() => () => {
         toast.dismiss()
-        promise?.current?.cancel()
-    }, [promise])
+    }, [])
 
     return undefined
 }

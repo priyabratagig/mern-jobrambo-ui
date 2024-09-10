@@ -1,19 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { JobCard } from '../Components'
 import { fetch_companies_by_ids, get_all_jobs, get_jobs_count } from '../api'
 import { resetAllCompanies, resetAllJobs, setAllCompanies, setAllJobs } from '../redux'
-import { usePublicAndStudentsOnly, useToastDismiss } from '../Hooks'
-import Toast from '../toast'
+import { useLoadingToast, usePublicAndStudentsOnly, useToastDismiss } from '../Hooks'
 
 export function Browse() {
     const query = useSelector(state => state.query)
     const allJobs = useSelector(state => state.jobs.allJobs)
     const [count, setCount] = useState(0)
-    const currentToast = useRef(null)
+    const { toastInit, setToastMesage, toastSuccess, toastError } = useLoadingToast()
 
     usePublicAndStudentsOnly()
-    useToastDismiss(currentToast)
+    useToastDismiss()
 
     useEffect(() => {
         resetAllJobs()
@@ -22,7 +21,7 @@ export function Browse() {
 
     useEffect(() => {
         const onLoadSearch = async () => {
-            currentToast.current = new Toast('... Loading jobs')
+            toastInit('... Loading jobs')
             try {
                 let additionalFilters = null
                 if (query?.search) {
@@ -46,12 +45,12 @@ export function Browse() {
                 if (count < 1) {
                     setCount(0)
 
-                    currentToast.current.succes('No jobs found')
+                    toastSuccess('No jobs found')
 
                     return undefined
                 }
                 else {
-                    currentToast.current.message('Found ' + count + ' jobs')
+                    setToastMesage('Found ' + count + ' jobs')
                 }
 
                 const jobs = await get_all_jobs({ additionalFilters, fields: '', limit: 6, skip: 0, sort: '-createdAt' })
@@ -67,10 +66,10 @@ export function Browse() {
                 setAllJobs(jobs)
                 setAllCompanies(companies)
 
-                currentToast.current.succes()
+                toastSuccess()
             }
             catch ({ message }) {
-                currentToast.current.error(message)
+                toastError(message)
 
                 console.error(message)
             }
@@ -78,7 +77,7 @@ export function Browse() {
 
         const timeOut = setTimeout(onLoadSearch, 150)
         return () => clearTimeout(timeOut)
-    }, [query])
+    }, [query, toastInit, setToastMesage, toastSuccess, toastError])
 
     return (
         <div className='max-w-7xl grow'>
