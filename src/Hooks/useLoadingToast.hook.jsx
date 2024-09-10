@@ -1,49 +1,30 @@
 import { useCallback, useEffect, useRef } from "react"
 import { toast } from "sonner"
 
-// eslint-disable-next-line react-refresh/only-export-components
-const STATES = { SUCCESS: 'SUCCESS', ERROR: 'ERROR' }
-
 export function useLoadingToast() {
-    const state = useRef()
-    const message = useRef()
-    const abortControler = useRef(null)
+    const message = useRef('')
+    const success = useRef(() => { })
+    const error = useRef(() => { })
+    const cancel = useRef(() => { })
 
     const toastInit = useCallback((msg) => {
-        if (abortControler.current instanceof Function) abortControler.current()
-
         const promise = new Promise((resolve, reject) => {
-            const abort = {
-                signal: false,
-                abort() {
-                    abort.signal = true
-                }
+            toast.dismiss()
+            const abortcontoler = {
+                signal: false
             }
-            abortControler.current = abort.abort
-            state.current = ''
-            let iterationCount = 0
-
-            const interValId = setInterval(() => {
-                if (abort.signal) {
-                    toast.dismiss()
-                    clearInterval(interValId)
-                    return undefined
-                }
-
-                switch (state.current) {
-                    case STATES.ERROR:
-                        reject(message.current)
-                        clearInterval(interValId)
-                        return undefined
-
-                    case STATES.SUCCESS:
-                        resolve(message.current)
-                        clearInterval(interValId)
-                        return undefined
-                }
-
-                if (++iterationCount > 60) clearInterval(interValId) // stop after 30s
-            }, 500)
+            cancel.current = () => {
+                abortcontoler.signal = true
+                toast.dismiss()
+            }
+            error.current = (msg) => {
+                if (abortcontoler.signal) return undefined
+                reject(message.current || msg || '')
+            }
+            success.current = (msg) => {
+                if (abortcontoler.signal) return undefined
+                resolve(message.current || msg || '')
+            }
         })
 
         toast.promise(promise, {
@@ -58,19 +39,19 @@ export function useLoadingToast() {
     }, [])
 
     useEffect(() => () => {
-        if (abortControler.current instanceof Function) abortControler.current()
+        toast.dismiss()
+        cancel.current()
     }, [])
 
     const setToastMesage = useCallback((msg) => {
         message.current = msg
     }, [])
+
     const toastSuccess = useCallback((msg) => {
-        message.current = msg || message.current || ''
-        state.current = STATES.SUCCESS
+        success.current(msg)
     }, [])
     const toastError = useCallback((msg) => {
-        message.current = msg || message.current || ''
-        state.current = STATES.ERROR
+        error.current(msg)
     }, [])
 
     return { toastInit, setToastMesage, toastSuccess, toastError }
